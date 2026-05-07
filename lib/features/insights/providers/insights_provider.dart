@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../../core/database/app_database.dart';
 
 class InsightsData {
@@ -116,7 +117,7 @@ final insightsProvider = FutureProvider<InsightsData>((ref) async {
       where: 'is_active = 1');
   double netWorth = 0;
   for (final a in accounts) {
-    netWorth += (a['balance'] as num?)?.toDouble() ?? 0;
+    netWorth += (a['balance'] as num?)?.toDouble() ?? 0.0;
   }
 
   return InsightsData(
@@ -132,16 +133,16 @@ final insightsProvider = FutureProvider<InsightsData>((ref) async {
 });
 
 Future<double> _getTotal(
-    dynamic db, String type, String start, String end) async {
+    Database db, String type, String start, String end) async {
   final result = await db.rawQuery(
     "SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE type = ? AND date >= ? AND date <= ?",
     [type, start, end],
   );
-  return (result.first['total'] as num?)?.toDouble() ?? 0;
+  return (result.first['total'] as num?)?.toDouble() ?? 0.0;
 }
 
 Future<List<CategoryBreakdown>> _getCategoryBreakdown(
-    dynamic db, String start, String end) async {
+    Database db, String start, String end) async {
   final rows = await db.rawQuery('''
     SELECT c.name, c.icon, c.color, COALESCE(SUM(e.amount), 0) as total
     FROM expenses e
@@ -152,21 +153,21 @@ Future<List<CategoryBreakdown>> _getCategoryBreakdown(
   ''', [start, end]);
 
   final grandTotal =
-      rows.fold<double>(0, (sum, r) => sum + ((r['total'] as num?)?.toDouble() ?? 0));
+      rows.fold<double>(0.0, (sum, r) => sum + ((r['total'] as num?)?.toDouble() ?? 0.0));
 
   return rows.map((r) {
-    final amount = (r['total'] as num?)?.toDouble() ?? 0;
+    final amount = (r['total'] as num?)?.toDouble() ?? 0.0;
     return CategoryBreakdown(
       categoryName: (r['name'] as String?) ?? 'Uncategorized',
       icon: (r['icon'] as String?) ?? 'category',
       color: (r['color'] as String?) ?? '#94A3B8',
       amount: amount,
-      percentage: grandTotal > 0 ? (amount / grandTotal) * 100 : 0,
+      percentage: grandTotal > 0 ? (amount / grandTotal) * 100 : 0.0,
     );
   }).toList();
 }
 
-Future<List<DailySpending>> _getWeeklySpending(dynamic db) async {
+Future<List<DailySpending>> _getWeeklySpending(Database db) async {
   final now = DateTime.now();
   final weekday = now.weekday;
   final weekStart = now.subtract(Duration(days: weekday - 1));
@@ -188,11 +189,11 @@ Future<List<DailySpending>> _getWeeklySpending(dynamic db) async {
     final dayStr = _formatDate(day);
     final found = rows.firstWhere(
       (r) => r['date'] == dayStr,
-      orElse: () => {'total': 0},
+      orElse: () => {'total': 0.0},
     );
     result.add(DailySpending(
       day: dayNames[i],
-      amount: (found['total'] as num?)?.toDouble() ?? 0,
+      amount: (found['total'] as num?)?.toDouble() ?? 0.0,
       isToday: i == weekday - 1,
     ));
   }
@@ -200,7 +201,7 @@ Future<List<DailySpending>> _getWeeklySpending(dynamic db) async {
   return result;
 }
 
-Future<List<MonthlyTrend>> _getMonthlyTrend(dynamic db) async {
+Future<List<MonthlyTrend>> _getMonthlyTrend(Database db) async {
   final now = DateTime.now();
   final result = <MonthlyTrend>[];
 
@@ -221,7 +222,7 @@ Future<List<MonthlyTrend>> _getMonthlyTrend(dynamic db) async {
 
     result.add(MonthlyTrend(
       month: monthNames[month.month - 1],
-      amount: (row.first['total'] as num?)?.toDouble() ?? 0,
+      amount: (row.first['total'] as num?)?.toDouble() ?? 0.0,
     ));
   }
 

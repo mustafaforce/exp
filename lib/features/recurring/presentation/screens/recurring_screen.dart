@@ -43,7 +43,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
 
   void _save() {
     final amountText = _amountController.text.trim();
-    final amount = double.tryParse(amountText) ?? 0;
+    final amount = double.tryParse(amountText) ?? 0.0;
     if (amount <= 0 || _accountId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

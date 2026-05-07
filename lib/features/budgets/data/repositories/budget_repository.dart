@@ -79,7 +79,7 @@ class BudgetRepository {
         category: category,
         spent: spent,
         percentage:
-            budget.amount > 0 ? (spent / budget.amount) * 100 : 0,
+            budget.amount > 0 ? (spent / budget.amount) * 100 : 0.0,
       ));
     }
 
@@ -102,7 +102,7 @@ class BudgetRepository {
       "SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE type = 'expense' AND date >= ? AND date <= ?",
       [startDate, endDate],
     );
-    return (result.first['total'] as num?)?.toDouble() ?? 0;
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
   Future<double> _getSpending(
@@ -113,14 +113,14 @@ class BudgetRepository {
         "SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE type = 'expense' AND date >= ? AND date <= ?",
         [startDate, endDate],
       );
-      return (result.first['total'] as num?)?.toDouble() ?? 0;
+      return (result.first['total'] as num?)?.toDouble() ?? 0.0;
     }
 
     final result = await database.rawQuery(
       "SELECT COALESCE(SUM(amount), 0) as total FROM expenses WHERE type = 'expense' AND category_id = ? AND date >= ? AND date <= ?",
       [categoryId, startDate, endDate],
     );
-    return (result.first['total'] as num?)?.toDouble() ?? 0;
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
   Future<CategoryModel?> _getCategory(int id) async {

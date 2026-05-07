@@ -9,7 +9,7 @@ final accountsProvider =
 
 final totalBalanceProvider = Provider<double>((ref) {
   final accounts = ref.watch(accountsProvider).valueOrNull ?? [];
-  return accounts.fold<double>(0, (sum, a) => sum + a.balance);
+  return accounts.fold<double>(0.0, (sum, a) => sum + a.balance);
 });
 
 class AccountsNotifier extends AsyncNotifier<List<AccountModel>> {

@@ -47,7 +47,7 @@ class _AddEditAccountScreenState extends State<AddEditAccountScreen> {
 
     setState(() => _isSaving = true);
 
-    final balance = double.tryParse(balanceText) ?? 0;
+    final balance = double.tryParse(balanceText) ?? 0.0;
     final now = DateTime.now().toIso8601String();
     final account = AccountModel(
       id: widget.account?.id,

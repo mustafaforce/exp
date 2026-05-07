@@ -25,7 +25,7 @@ class _SplitEditorState extends State<SplitEditor> {
       ...widget.splits,
       SplitRowData(
         categoryId: widget.categories.first.id!,
-        amount: 0,
+        amount: 0.0,
         controller: TextEditingController(),
       ),
     ];
@@ -47,7 +47,7 @@ class _SplitEditorState extends State<SplitEditor> {
 
   void _updateAmount(int index, String text) {
     final newSplits = [...widget.splits];
-    newSplits[index].amount = double.tryParse(text) ?? 0;
+    newSplits[index].amount = double.tryParse(text) ?? 0.0;
     widget.onChanged(newSplits);
   }
 
@@ -55,7 +55,7 @@ class _SplitEditorState extends State<SplitEditor> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final totalSplits =
-        widget.splits.fold<double>(0, (sum, s) => sum + s.amount);
+        widget.splits.fold<double>(0.0, (sum, s) => sum + s.amount);
     final isValid =
         (totalSplits - widget.totalAmount).abs() < 0.01;
     final isOver = totalSplits > widget.totalAmount;

@@ -246,7 +246,7 @@ class ExpenseRepository {
       args,
     );
 
-    return (result.first['total'] as num?)?.toDouble() ?? 0;
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
   Future<void> _updateAccountBalance(int accountId, double delta) async {

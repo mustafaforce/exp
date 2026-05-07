@@ -74,7 +74,7 @@ Future<ReportData> _generateReport(
     [startDate, endDate],
   );
   final totalIncome =
-      (incomeResult.first['total'] as num?)?.toDouble() ?? 0;
+      (incomeResult.first['total'] as num?)?.toDouble() ?? 0.0;
 
   // Total expenses
   final expenseResult = await database.rawQuery(
@@ -82,7 +82,7 @@ Future<ReportData> _generateReport(
     [startDate, endDate],
   );
   final totalExpenses =
-      (expenseResult.first['total'] as num?)?.toDouble() ?? 0;
+      (expenseResult.first['total'] as num?)?.toDouble() ?? 0.0;
 
   // Category breakdown
   final catRows = await database.rawQuery('''
@@ -95,12 +95,12 @@ Future<ReportData> _generateReport(
   ''', [startDate, endDate]);
 
   final catList = catRows.map((r) {
-    final amount = (r['total'] as num?)?.toDouble() ?? 0;
+    final amount = (r['total'] as num?)?.toDouble() ?? 0.0;
     return ReportCategoryRow(
       category: (r['name'] as String?) ?? 'Uncategorized',
       amount: amount,
       percentage:
-          totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
+          totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0.0,
     );
   }).toList();
 
@@ -121,7 +121,7 @@ Future<ReportData> _generateReport(
       category: r['category'] as String?,
       payee: r['payee'] as String?,
       note: r['note'] as String?,
-      amount: (r['amount'] as num?)?.toDouble() ?? 0,
+      amount: (r['amount'] as num?)?.toDouble() ?? 0.0,
     );
   }).toList();
 

@@ -27,7 +27,7 @@ class TrendLineChart extends StatelessWidget {
     }
 
     final maxAmount =
-        data.fold<double>(0, (max, d) => d.amount > max ? d.amount : max);
+        data.fold<double>(0.0, (max, d) => d.amount > max ? d.amount : max);
 
     return Card(
       child: Padding(

@@ -68,7 +68,7 @@ class _AddEditExpenseScreenState extends ConsumerState<AddEditExpenseScreen> {
 
   void _save() {
     final amountText = _amountController.text.trim();
-    final amount = double.tryParse(amountText) ?? 0;
+    final amount = double.tryParse(amountText) ?? 0.0;
     if (amount <= 0 || _accountId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -217,7 +217,7 @@ class _AddEditExpenseScreenState extends ConsumerState<AddEditExpenseScreen> {
                     categories: filtered,
                     splits: _splits,
                     onChanged: (s) => setState(() => _splits = s),
-                    totalAmount: double.tryParse(_amountController.text) ?? 0,
+                    totalAmount: double.tryParse(_amountController.text) ?? 0.0,
                   );
                 },
               )
