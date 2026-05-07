@@ -40,7 +40,11 @@ class BudgetsScreen extends ConsumerWidget {
             );
           }
 
-          return AnimationLimiter(
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(budgetsProvider);
+            },
+            child: AnimationLimiter(
             child: ListView.builder(
               padding: const EdgeInsets.fromLTRB(10, 4, 10, 72),
               itemCount: budgets.length + 1,
@@ -139,6 +143,7 @@ class BudgetsScreen extends ConsumerWidget {
                 );
               },
             ),
+          ),
           );
         },
       ),

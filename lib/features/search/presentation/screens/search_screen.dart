@@ -205,7 +205,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             child: TransactionTile(
                               expense: item,
                               onTap: () => _editTransaction(item),
-                              onDelete: () => _deleteTransaction(item),
+                              onLongPress: () => _deleteTransaction(item),
                             ),
                           ),
                         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/budget_model.dart';
 import '../../providers/budgets_provider.dart';
 import '../../../categories/providers/categories_provider.dart';
@@ -102,9 +103,9 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
             const SizedBox(height: 16),
             TextField(
               controller: _amountController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Monthly Budget',
-                prefixText: '\$ ',
+                prefixText: '${CurrencyFormatter.symbol} ',
                 border: OutlineInputBorder(),
               ),
               keyboardType: const TextInputType.numberWithOptions(

@@ -1,36 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/presentation/screens/home_screen.dart';
 import 'features/expenses/presentation/screens/expense_list_screen.dart';
 import 'features/insights/presentation/screens/insights_screen.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
+import 'features/settings/providers/currency_provider.dart';
+import 'features/settings/providers/theme_provider.dart';
+import 'features/onboarding/providers/onboarding_provider.dart';
+import 'features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'core/providers/navigation_provider.dart';
 
-class App extends StatelessWidget {
+class App extends ConsumerWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(initCurrencyProvider);
+    ref.watch(initThemeProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final onboardingDone = ref.watch(onboardingDoneProvider);
+
     return MaterialApp(
       title: 'Expense Tracker',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
-      home: const MainShell(),
+      themeMode: themeMode,
+      home: onboardingDone.when(
+        loading: () => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, _) => const MainShell(),
+        data: (done) => done ? const MainShell() : const OnboardingScreen(),
+      ),
     );
   }
 }
 
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
-  int _currentIndex = 0;
-
+class _MainShellState extends ConsumerState<MainShell> {
   final _screens = const [
     HomeScreen(),
     ExpenseListScreen(),
@@ -40,15 +56,18 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = ref.watch(tabIndexProvider);
     return Scaffold(
       body: IndexedStack(
-        index: _currentIndex,
+        index: currentIndex,
         children: _screens,
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) =>
-            setState(() => _currentIndex = index),
+        selectedIndex: currentIndex,
+        onDestinationSelected: (index) {
+          HapticFeedback.lightImpact();
+          ref.read(tabIndexProvider.notifier).state = index;
+        },
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: const [
           NavigationDestination(

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/utils/date_utils.dart';
-import '../../../../core/widgets/confirmation_dialog.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../data/repositories/expense_repository.dart';
 import '../../data/models/expense_model.dart';
 import '../../providers/expenses_provider.dart';
@@ -135,7 +136,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
                                   ...items.map((item) => TransactionTile(
                                         expense: item,
                                         onTap: () => _editExpense(context, item),
-                                        onDelete: () => _deleteExpense(context, item),
+                                        onLongPress: () => _showOptionsSheet(context, item),
                                       )),
                                   Divider(
                                     height: 0.5,
@@ -204,11 +205,24 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
       context,
       MaterialPageRoute(builder: (_) => const AddEditExpenseScreen()),
     ).then((result) {
+      ExpenseModel? expense;
       if (result is Map && result['expense'] is ExpenseModel) {
-        final exp = result['expense'] as ExpenseModel;
-        ref.read(expensesProvider.notifier).addExpense(exp);
+        expense = result['expense'] as ExpenseModel;
       } else if (result is ExpenseModel) {
-        ref.read(expensesProvider.notifier).addExpense(result);
+        expense = result;
+      }
+      if (expense != null) {
+        HapticFeedback.lightImpact();
+        ref.read(expensesProvider.notifier).addExpense(expense);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${expense.type == 'income' ? 'Income' : 'Expense'} saved'),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       }
     });
   }
@@ -220,26 +234,102 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
         builder: (_) => AddEditExpenseScreen(expense: expense.expense),
       ),
     ).then((result) {
+      ExpenseModel? updated;
       if (result is Map && result['expense'] is ExpenseModel) {
-        final exp = result['expense'] as ExpenseModel;
-        ref.read(expensesProvider.notifier).updateExpense(expense.expense, exp);
+        updated = result['expense'] as ExpenseModel;
       } else if (result is ExpenseModel) {
-        ref.read(expensesProvider.notifier).updateExpense(expense.expense, result);
+        updated = result;
+      }
+      if (updated != null) {
+        HapticFeedback.lightImpact();
+        ref.read(expensesProvider.notifier)
+            .updateExpense(expense.expense, updated);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Transaction updated'),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
     });
   }
 
-  Future<void> _deleteExpense(BuildContext context, ExpenseWithDetails expense) async {
-    final confirmed = await ConfirmationDialog.show(
-      context,
-      title: 'Delete Transaction',
-      message: 'Delete this transaction? This can\'t be undone.',
-      confirmLabel: 'Delete',
-      confirmColor: Theme.of(context).colorScheme.error,
-      icon: Icons.delete_outline,
+  void _showOptionsSheet(BuildContext context, ExpenseWithDetails item) {
+    final theme = Theme.of(context);
+    final exp = item.expense;
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.payeeName ?? item.categoryName ?? 'Transaction',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(
+                    '${exp.isExpense ? '-' : exp.isIncome ? '+' : ''}${CurrencyFormatter.format(exp.amount)}',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: Icon(Icons.edit_outlined, size: 20,
+                  color: theme.colorScheme.onSurface),
+              title: const Text('Edit'),
+              dense: true,
+              onTap: () {
+                Navigator.pop(ctx);
+                _editExpense(context, item);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_outline, size: 20,
+                  color: theme.colorScheme.error),
+              title: Text('Delete',
+                  style: TextStyle(color: theme.colorScheme.error)),
+              dense: true,
+              onTap: () {
+                Navigator.pop(ctx);
+                _deleteExpense(context, item);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
-    if (confirmed == true && expense.expense.id != null) {
-      ref.read(expensesProvider.notifier).deleteExpense(expense.expense.id!);
+  }
+
+  void _deleteExpense(BuildContext context, ExpenseWithDetails expense) {
+    if (expense.expense.id == null) return;
+    HapticFeedback.mediumImpact();
+    ref.read(expensesProvider.notifier).deleteExpense(expense.expense.id!);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Transaction deleted'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 }

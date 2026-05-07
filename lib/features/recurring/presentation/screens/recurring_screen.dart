@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../categories/providers/categories_provider.dart';
 import '../../../accounts/providers/accounts_provider.dart';
 import '../../data/models/recurring_model.dart';
@@ -132,10 +133,10 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: _amountController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Amount',
-                        labelStyle: TextStyle(fontSize: 13),
-                        prefixText: '\$ ',
+                        labelStyle: const TextStyle(fontSize: 13),
+                        prefixText: '${CurrencyFormatter.symbol} ',
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
@@ -251,12 +252,12 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
               error: (e, _) => Center(child: Text('Error: $e')),
               data: (recurrings) {
                 if (recurrings.isEmpty && !_showAddForm) {
-                  return const EmptyState(
+                  return EmptyState(
                     icon: Icons.repeat_outlined,
                     headline: 'No recurring transactions',
                     description: 'Automate bills and subscriptions.',
                     ctaLabel: 'Add Recurring',
-                    onCta: null,
+                    onCta: () => setState(() => _showAddForm = true),
                   );
                 }
 
@@ -300,7 +301,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${r.type == 'expense' ? '-' : '+'}\$${r.amount.toStringAsFixed(2)}',
+                                    '${r.type == 'expense' ? '-' : '+'}${CurrencyFormatter.symbol}${r.amount.toStringAsFixed(2)}',
                                     style: theme.textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.w600,
                                       color: r.isActive ? null : theme.colorScheme.onSurfaceVariant,

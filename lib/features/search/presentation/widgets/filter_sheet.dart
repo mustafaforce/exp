@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../categories/data/models/category_model.dart';
 import '../../../accounts/data/models/account_model.dart';
 
@@ -253,9 +254,9 @@ class _FilterSheetState extends State<FilterSheet> {
               children: [
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Min',
-                      prefixText: '\$',
+                      prefixText: CurrencyFormatter.symbol,
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),
@@ -270,9 +271,9 @@ class _FilterSheetState extends State<FilterSheet> {
                 ),
                 Expanded(
                   child: TextField(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Max',
-                      prefixText: '\$',
+                      prefixText: CurrencyFormatter.symbol,
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),

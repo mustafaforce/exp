@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/widgets/animated_balance.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -10,6 +11,7 @@ import '../../../accounts/providers/accounts_provider.dart';
 import '../../../transfers/presentation/screens/transfer_screen.dart';
 import '../../../recurring/providers/recurring_provider.dart';
 import '../../../insights/providers/insights_provider.dart';
+import '../../../../core/providers/navigation_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -136,11 +138,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   if (expensesAsync.valueOrNull?.isNotEmpty == true)
                     GestureDetector(
                       onTap: () {
-                        // Switch to transactions tab
-                        final shell = context.findAncestorStateOfType<State>();
-                        if (shell != null && shell.mounted) {
-                          // Navigate via parent MainShell
-                        }
+                        ref.read(tabIndexProvider.notifier).state = 1;
                       },
                       child: Text(
                         'See all',
@@ -219,10 +217,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         builder: (_) => AddEditExpenseScreen(initialType: type),
       ),
     ).then((result) {
+      ExpenseModel? expense;
       if (result is Map && result['expense'] is ExpenseModel) {
-        ref.read(expensesProvider.notifier).addExpense(result['expense'] as ExpenseModel);
+        expense = result['expense'] as ExpenseModel;
       } else if (result is ExpenseModel) {
-        ref.read(expensesProvider.notifier).addExpense(result);
+        expense = result;
+      }
+      if (expense != null) {
+        HapticFeedback.lightImpact();
+        ref.read(expensesProvider.notifier).addExpense(expense);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${expense.type == 'income' ? 'Income' : 'Expense'} saved'),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       }
     });
   }
@@ -234,12 +246,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         builder: (_) => AddEditExpenseScreen(expense: expense.expense),
       ),
     ).then((result) {
+      ExpenseModel? updated;
       if (result is Map && result['expense'] is ExpenseModel) {
-        ref.read(expensesProvider.notifier)
-            .updateExpense(expense.expense, result['expense'] as ExpenseModel);
+        updated = result['expense'] as ExpenseModel;
       } else if (result is ExpenseModel) {
+        updated = result;
+      }
+      if (updated != null) {
+        HapticFeedback.lightImpact();
         ref.read(expensesProvider.notifier)
-            .updateExpense(expense.expense, result);
+            .updateExpense(expense.expense, updated);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Transaction updated'),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
     });
   }

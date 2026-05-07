@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/providers/accounts_provider.dart';
 import '../../../expenses/data/models/expense_model.dart';
@@ -120,9 +121,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 const SizedBox(height: 24),
                 TextField(
                   controller: _amountController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Amount',
-                    prefixText: '\$ ',
+                    prefixText: '${CurrencyFormatter.symbol} ',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: const TextInputType.numberWithOptions(

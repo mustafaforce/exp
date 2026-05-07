@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../categories/data/models/category_model.dart';
 
 class SplitEditor extends StatefulWidget {
@@ -109,8 +110,8 @@ class _SplitEditorState extends State<SplitEditor> {
                 Expanded(
                   child: TextField(
                     controller: split.controller,
-                    decoration: const InputDecoration(
-                      prefixText: '\$',
+                    decoration: InputDecoration(
+                      prefixText: CurrencyFormatter.symbol,
                       border: OutlineInputBorder(),
                       isDense: true,
                       contentPadding: EdgeInsets.symmetric(
@@ -137,7 +138,7 @@ class _SplitEditorState extends State<SplitEditor> {
             const Text('Total: ',
                 style: TextStyle(fontWeight: FontWeight.w600)),
             Text(
-              '\$${totalSplits.toStringAsFixed(2)}',
+              '${CurrencyFormatter.symbol}${totalSplits.toStringAsFixed(2)}',
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 color: isOver
@@ -151,7 +152,7 @@ class _SplitEditorState extends State<SplitEditor> {
               Padding(
                 padding: const EdgeInsets.only(left: 8),
                 child: Text(
-                  '/ \$${widget.totalAmount.toStringAsFixed(2)}',
+                  '/ ${CurrencyFormatter.symbol}${widget.totalAmount.toStringAsFixed(2)}',
                   style: TextStyle(
                     color: theme.colorScheme.error,
                     fontSize: 12,

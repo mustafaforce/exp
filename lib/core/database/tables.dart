@@ -122,6 +122,13 @@ class Tables {
     )
   ''';
 
+  static const String settings = '''
+    CREATE TABLE settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    )
+  ''';
+
   static const List<String> allTables = [
     categories,
     accounts,
@@ -132,5 +139,6 @@ class Tables {
     splits,
     budgets,
     recurringTransactions,
+    settings,
   ];
 }

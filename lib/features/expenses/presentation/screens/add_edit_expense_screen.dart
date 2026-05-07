@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/constants/category_defaults.dart';
 import '../../../categories/providers/categories_provider.dart';
 import '../../../accounts/providers/accounts_provider.dart';
@@ -169,7 +170,7 @@ class _AddEditExpenseScreenState extends ConsumerState<AddEditExpenseScreen> {
               decoration: InputDecoration(
                 labelText: 'Amount',
                 labelStyle: const TextStyle(fontSize: 13),
-                prefixText: '\$ ',
+                prefixText: '${CurrencyFormatter.symbol} ',
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(color: accentColor, width: 1.5),

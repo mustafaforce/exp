@@ -20,12 +20,30 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 3,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute(Tables.settings);
+      await db.insert('settings', {
+        'key': 'currency',
+        'value': 'USD',
+      });
+    }
+    if (oldVersion < 3) {
+      // Existing users skip onboarding
+      await db.insert('settings', {
+        'key': 'onboarding_done',
+        'value': 'true',
+      });
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -61,6 +79,11 @@ class AppDatabase {
       'currency': 'USD',
       'is_active': 1,
       'created_at': now,
+    });
+
+    await db.insert('settings', {
+      'key': 'currency',
+      'value': 'USD',
     });
   }
 

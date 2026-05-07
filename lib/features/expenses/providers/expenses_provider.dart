@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/repositories/expense_repository.dart';
 import '../data/models/expense_model.dart';
+import '../../accounts/providers/accounts_provider.dart';
+import '../../insights/providers/insights_provider.dart';
 
 final expensesProvider =
     AsyncNotifierProvider<ExpensesNotifier, List<ExpenseWithDetails>>(
@@ -66,7 +68,8 @@ class ExpensesNotifier extends AsyncNotifier<List<ExpenseWithDetails>> {
     final repo = ref.read(expenseRepositoryProvider);
     await repo.insert(expense);
     ref.invalidateSelf();
-    ref.invalidate(accountBalancesProvider);
+    ref.invalidate(accountsProvider);
+    ref.invalidate(insightsProvider);
   }
 
   Future<void> updateExpense(
@@ -74,17 +77,15 @@ class ExpensesNotifier extends AsyncNotifier<List<ExpenseWithDetails>> {
     final repo = ref.read(expenseRepositoryProvider);
     await repo.update(oldExpense, newExpense);
     ref.invalidateSelf();
-    ref.invalidate(accountBalancesProvider);
+    ref.invalidate(accountsProvider);
+    ref.invalidate(insightsProvider);
   }
 
   Future<void> deleteExpense(int id) async {
     final repo = ref.read(expenseRepositoryProvider);
     await repo.delete(id);
     ref.invalidateSelf();
-    ref.invalidate(accountBalancesProvider);
+    ref.invalidate(accountsProvider);
+    ref.invalidate(insightsProvider);
   }
 }
-
-final accountBalancesProvider = FutureProvider<void>((ref) async {
-  // Dummy provider to trigger refreshes when balances change
-});

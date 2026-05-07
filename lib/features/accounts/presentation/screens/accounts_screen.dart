@@ -100,7 +100,11 @@ class AccountsScreen extends ConsumerWidget {
 
               // Account list
               Expanded(
-                child: ListView.builder(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    ref.invalidate(accountsProvider);
+                  },
+                  child: ListView.builder(
                   itemCount: accounts.length,
                   itemBuilder: (context, index) {
                     final account = accounts[index];
@@ -149,6 +153,7 @@ class AccountsScreen extends ConsumerWidget {
                     );
                   },
                 ),
+              ),
               ),
             ],
           );
