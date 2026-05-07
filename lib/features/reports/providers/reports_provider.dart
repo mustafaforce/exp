@@ -58,9 +58,8 @@ class ReportTransactionRow {
 }
 
 final reportsProvider =
-    FutureProvider.family<ReportData?, Map<String, String>>((ref, dateRange) {
-  return _generateReport(
-      ref, dateRange['start']!, dateRange['end']!);
+    FutureProvider.family<ReportData?, (String, String)>((ref, dateRange) {
+  return _generateReport(ref, dateRange.$1, dateRange.$2);
 });
 
 Future<ReportData> _generateReport(

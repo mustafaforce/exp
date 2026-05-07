@@ -61,10 +61,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dateRange = {
-      'start': DateUtilsX.toDb(_startDate),
-      'end': DateUtilsX.toDb(_endDate),
-    };
+    final dateRange = (DateUtilsX.toDb(_startDate), DateUtilsX.toDb(_endDate));
     final reportAsync = ref.watch(reportsProvider(dateRange));
 
     return Scaffold(
@@ -122,6 +119,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       style: theme.textTheme.bodySmall));
                 }
 
+                final netPrefix = data.net >= 0 ? '+' : '-';
+
                 return SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(10, 4, 10, 20),
                   child: Column(
@@ -147,10 +146,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                         children: [
                           Expanded(child: _MiniCard(
                             label: 'Net',
-                            amount: data.net,
+                            amount: data.net.abs(),
                             color: data.net >= 0
                                 ? const Color(0xFF10B981)
                                 : theme.colorScheme.error,
+                            prefix: netPrefix,
                           )),
                           const SizedBox(width: 6),
                           Expanded(child: _MiniCard(
@@ -160,7 +160,27 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                           )),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 4),
+
+                      // Transaction count
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.receipt_long_outlined, size: 14,
+                                color: theme.colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${data.transactions.length} transaction${data.transactions.length == 1 ? '' : 's'}',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 6),
 
                       // Export
                       SizedBox(
@@ -185,29 +205,46 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                         ),
                         const SizedBox(height: 6),
                         ...data.categoryRows.map((cat) {
+                          final pct = cat.percentage / 100;
                           return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 3),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Column(
                               children: [
-                                Expanded(
-                                  child: Text(cat.category,
-                                      style: theme.textTheme.bodySmall),
-                                ),
-                                Text(
-                                  CurrencyFormatter.format(cat.amount),
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontFeatures: const [FontFeature.tabularFigures()],
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 32,
-                                  child: Text(
-                                    '${cat.percentage.toStringAsFixed(0)}%',
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(cat.category,
+                                          style: theme.textTheme.bodySmall),
                                     ),
-                                    textAlign: TextAlign.right,
+                                    Text(
+                                      CurrencyFormatter.format(cat.amount),
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        fontFeatures: const [FontFeature.tabularFigures()],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 36,
+                                      child: Text(
+                                        '${cat.percentage.toStringAsFixed(0)}%',
+                                        style: theme.textTheme.labelSmall?.copyWith(
+                                          color: theme.colorScheme.onSurfaceVariant,
+                                        ),
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(2),
+                                  child: LinearProgressIndicator(
+                                    value: pct.clamp(0, 1).toDouble(),
+                                    minHeight: 4,
+                                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                                    valueColor: AlwaysStoppedAnimation(
+                                      theme.colorScheme.primary,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -268,16 +305,21 @@ class _MiniCard extends StatelessWidget {
   final String label;
   final double amount;
   final Color color;
+  final String? prefix;
 
   const _MiniCard({
     required this.label,
     required this.amount,
     required this.color,
+    this.prefix,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final formatted = prefix != null
+        ? '$prefix${CurrencyFormatter.format(amount)}'
+        : CurrencyFormatter.format(amount);
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -289,7 +331,7 @@ class _MiniCard extends StatelessWidget {
             )),
             const SizedBox(height: 2),
             Text(
-              CurrencyFormatter.format(amount),
+              formatted,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: color,
