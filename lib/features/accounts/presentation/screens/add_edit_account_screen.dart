@@ -19,7 +19,7 @@ class _AddEditAccountScreenState extends State<AddEditAccountScreen> {
   bool _isSaving = false;
 
   static const _types = ['cash', 'bank', 'credit_card', 'savings', 'investment'];
-  static const _currencies = ['USD', 'EUR', 'GBP', 'JPY', 'PKR', 'INR'];
+  static const _currencies = ['USD', 'BDT', 'EUR', 'GBP', 'JPY', 'PKR', 'INR'];
 
   @override
   void initState() {
@@ -97,7 +97,7 @@ class _AddEditAccountScreenState extends State<AddEditAccountScreen> {
               controller: _balanceController,
               decoration: InputDecoration(
                 labelText: 'Initial Balance',
-                prefixText: _currency == 'USD' ? '\$ ' : '$_currency ',
+                prefixText: _currency == 'USD' ? '\$ ' : _currency == 'BDT' ? '৳ ' : '$_currency ',
                 border: const OutlineInputBorder(),
               ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
