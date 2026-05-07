@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
 import '../../../settings/providers/currency_provider.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../accounts/providers/accounts_provider.dart';
@@ -79,6 +80,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
       await ref.read(accountsProvider.notifier).addAccount(account);
     }
+
+    if (!mounted) return;
+
+    // Show success animation
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const _SuccessOverlay(),
+    );
 
     // Mark onboarding done
     await markOnboardingDone(ref);
@@ -159,18 +169,11 @@ class _WelcomePage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              Icons.account_balance_wallet_rounded,
-              size: 40,
-              color: theme.colorScheme.primary,
-            ),
+          Lottie.asset(
+            'assets/animations/welcome.json',
+            width: 180,
+            height: 180,
+            repeat: true,
           ),
           const SizedBox(height: 24),
           Text(
@@ -476,6 +479,60 @@ class _AccountPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SuccessOverlay extends StatefulWidget {
+  const _SuccessOverlay();
+
+  @override
+  State<_SuccessOverlay> createState() => _SuccessOverlayState();
+}
+
+class _SuccessOverlayState extends State<_SuccessOverlay> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      if (mounted) Navigator.of(context).pop();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Dialog(
+      backgroundColor: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset(
+              'assets/animations/success.json',
+              width: 120,
+              height: 120,
+              repeat: false,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'You\'re all set!',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Let\'s start tracking your finances.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
       ),

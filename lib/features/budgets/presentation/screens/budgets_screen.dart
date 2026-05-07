@@ -33,6 +33,7 @@ class BudgetsScreen extends ConsumerWidget {
           if (budgets.isEmpty) {
             return EmptyState(
               icon: Icons.track_changes_outlined,
+              lottieAsset: 'assets/animations/empty_budget.json',
               headline: 'No budgets created',
               description: 'Set spending limits to stay on track.',
               ctaLabel: 'Create Budget',

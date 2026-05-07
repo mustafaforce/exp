@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class EmptyState extends StatelessWidget {
   final IconData icon;
@@ -6,6 +7,7 @@ class EmptyState extends StatelessWidget {
   final String description;
   final String? ctaLabel;
   final VoidCallback? onCta;
+  final String? lottieAsset;
 
   const EmptyState({
     super.key,
@@ -14,6 +16,7 @@ class EmptyState extends StatelessWidget {
     required this.description,
     this.ctaLabel,
     this.onCta,
+    this.lottieAsset,
   });
 
   @override
@@ -25,7 +28,15 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 40, color: theme.colorScheme.outline),
+            if (lottieAsset != null)
+              Lottie.asset(
+                lottieAsset!,
+                width: 150,
+                height: 150,
+                repeat: true,
+              )
+            else
+              Icon(icon, size: 40, color: theme.colorScheme.outline),
             const SizedBox(height: 12),
             Text(
               headline,

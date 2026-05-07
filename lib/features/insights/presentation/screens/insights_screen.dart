@@ -31,6 +31,7 @@ class InsightsScreen extends ConsumerWidget {
           if (data.totalExpenses == 0 && data.totalIncome == 0) {
             return EmptyState(
               icon: Icons.pie_chart_outline,
+              lottieAsset: 'assets/animations/empty_transaction.json',
               headline: 'Not enough data yet',
               description: 'Add a few transactions to unlock insights.',
             );

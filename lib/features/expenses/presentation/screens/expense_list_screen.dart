@@ -103,6 +103,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
                 if (expenses.isEmpty) {
                   return EmptyState(
                     icon: Icons.receipt_long_outlined,
+                    lottieAsset: 'assets/animations/empty_transaction.json',
                     headline: 'No transactions yet',
                     description: 'Tap + to record your first expense or income.',
                     ctaLabel: 'Add Transaction',
